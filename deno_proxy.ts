@@ -1,13 +1,9 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
   const path = url.searchParams.get("path") || "";
 
-  if (!path || path === "/") {
-    return new Response("Bangumi Proxy OK. Use ?path=search/subject/xxx", {
-      status: 200,
-    });
+  if (!path) {
+    return new Response("Bangumi Proxy OK. Use ?path=search/subject/xxx");
   }
 
   try {
