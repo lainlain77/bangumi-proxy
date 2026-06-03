@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/bangumi.js": {
+      "maxDuration": 30
+    }
+  }
+}
