@@ -1,0 +1,41 @@
+name: Bangumi API Proxy
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: 'Bangumi API path (e.g. search/subject/keyword)'
+        required: true
+      request_id:
+        description: 'Unique request ID to identify the response'
+        required: true
+
+jobs:
+  proxy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch from Bangumi API
+        run: |
+          mkdir -p responses
+          curl -sL --max-time 30 \
+            -o "responses/${{ inputs.request_id }}.json" \
+            "https://api.bgm.tv/${{ inputs.path }}"
+          echo "=== Response ==="
+          head -c 2000 "responses/${{ inputs.request_id }}.json"
+          echo ""
+          echo "=== File size ==="
+          wc -c "responses/${{ inputs.request_id }}.json"
+
+      - name: Commit and push response
+        run: |
+          git config user.name "bangumi-bot"
+          git config user.email "bot@bangumi.local"
+          git add responses/
+          git commit -m "Proxy response: ${{ inputs.path }}" || echo "No changes"
+          git push
